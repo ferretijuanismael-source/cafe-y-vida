@@ -2,7 +2,7 @@ const express=require('express'),multer=require('multer'),fs=require('fs'),path=
 const app=express(),PORT=process.env.PORT||3000,ADMIN_PASSWORD=process.env.ADMIN_PASSWORD||'cafevida2026';
 const dir=path.join(__dirname,'uploads'); fs.mkdirSync(dir,{recursive:true});
 const imageExt={"image/jpeg":"jpg","image/png":"png","image/webp":"webp"};
-const imageUpload=multer({storage:multer.diskStorage({destination:dir,filename:(r,f,c)=>c(null,(r.path||'')+'site-image.tmp')}),limits:{fileSize:10*1024*1024},fileFilter:(r,f,c)=>c(null,!!imageExt[f.mimetype])});
+const imageUpload=multer({storage:multer.diskStorage({destination:dir,filename:(r,f,c)=>c(null,Date.now()+'-'+f.originalname.replace(/[^a-zA-Z0-9._-]/g,'_'))}),limits:{fileSize:10*1024*1024},fileFilter:(r,f,c)=>c(null,!!imageExt[f.mimetype])});
 const pdfUpload=multer({storage:multer.diskStorage({destination:dir,filename:(r,f,c)=>c(null,'presentacion.pdf')}),limits:{fileSize:25*1024*1024},fileFilter:(r,f,c)=>c(null,f.mimetype==='application/pdf')});
 function saveImage(file,base){const ext=imageExt[file.mimetype];const dest=path.join(dir,base+'.'+ext);for(const e of Object.values(imageExt)){const old=path.join(dir,base+'.'+e);if(old!==dest&&fs.existsSync(old))fs.unlinkSync(old)}fs.renameSync(file.path,dest);return dest}
 function current(base){for(const ext of Object.values(imageExt)){const f=path.join(dir,base+'.'+ext);if(fs.existsSync(f))return f}return null}
