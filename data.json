@@ -1,0 +1,45 @@
+{
+  "title": "Café y Vida",
+  "description": "Un espacio para compartir, escuchar y crecer.",
+  "footer": "Café y Vida",
+  "links": [
+    {
+      "id": "facebook",
+      "name": "Facebook",
+      "url": "https://www.facebook.com/cafeyvidapodcast",
+      "active": true,
+      "featured": false,
+      "description": ""
+    },
+    {
+      "id": "instagram",
+      "name": "Instagram",
+      "url": "https://www.instagram.com/cafe.yvida/",
+      "active": true,
+      "featured": false,
+      "description": ""
+    },
+    {
+      "id": "youtube",
+      "name": "YouTube",
+      "url": "https://youtube.com/@predicacionesonline2024",
+      "active": true,
+      "featured": false,
+      "description": ""
+    }
+  ],
+  "appearance": {
+    "font": "DM Sans",
+    "titleFont": "Playfair Display",
+    "textColor": "#3f2a1e",
+    "titleColor": "#3f2a1e",
+    "descriptionColor": "#3f2a1e",
+    "buttonColor": "#fffaf4",
+    "buttonTextColor": "#3f2a1e",
+    "buttonOpacity": 92,
+    "buttonRadius": 16,
+    "overlay": 12,
+    "titleSize": 36,
+    "bodySize": 15
+  }
+}
