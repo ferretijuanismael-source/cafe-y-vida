@@ -13,7 +13,7 @@ if(!fs.existsSync(dataFile))save(defaults);
 
 const imageExt={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'};
 const imageUpload=multer({storage:multer.diskStorage({destination:dir,filename:(r,f,c)=>c(null,Date.now()+'-'+f.originalname.replace(/[^a-zA-Z0-9._-]/g,'_'))}),limits:{fileSize:10*1024*1024},fileFilter:(r,f,c)=>c(null,!!imageExt[f.mimetype])});
-const pdfUpload=multer({storage:multer.diskStorage({destination:dir,filename:(r,f,c)=>c(null,'presentacion.pdf')}),limits:{fileSize:100*1024*1024},fileFilter:(r,f,c)=>c(f.mimetype==='application/pdf'||/\.pdf$/i.test(f.originalname||'')?null:new Error('Solo se permiten archivos PDF.'))});
+const pdfUpload=multer({storage:multer.diskStorage({destination:dir,filename:(r,f,c)=>c(null,'presentacion-upload-'+Date.now()+'.tmp')}),limits:{fileSize:100*1024*1024},fileFilter:(r,f,c)=>c(null,true)});
 
 function saveImage(file,base){const ext=imageExt[file.mimetype],dest=path.join(dir,base+'.'+ext);for(const e of Object.values(imageExt)){const old=path.join(dir,base+'.'+e);if(old!==dest&&fs.existsSync(old))fs.unlinkSync(old)}fs.renameSync(file.path,dest)}
 function current(base){for(const ext of Object.values(imageExt)){const f=path.join(dir,base+'.'+ext);if(fs.existsSync(f))return f}return null}
@@ -71,9 +71,29 @@ app.get('/admin/logout',(req,res)=>{
 });
 
 /* All changes now require the authenticated admin cookie. */
-app.post('/admin/upload',pdfUpload.single('pdf'),requireAdmin,(req,res)=>{
-  if(!req.file)return res.status(400).send('Seleccioná un PDF.');
-  res.redirect('/admin?ok=pdf');
+app.post('/admin/upload',requireAdmin,(req,res)=>{
+  pdfUpload.single('pdf')(req,res,(err)=>{
+    if(err){
+      console.error('PDF upload error:',err);
+      return res.status(400).send('No se pudo subir el PDF: '+err.message);
+    }
+    if(!req.file)return res.status(400).send('Seleccioná un PDF.');
+    const original=(req.file.originalname||'').toLowerCase();
+    if(!original.endsWith('.pdf')){
+      if(fs.existsSync(req.file.path))fs.unlinkSync(req.file.path);
+      return res.status(400).send('El archivo debe ser un PDF.');
+    }
+    const dest=path.join(dir,'presentacion.pdf');
+    try{
+      if(fs.existsSync(dest))fs.unlinkSync(dest);
+      fs.renameSync(req.file.path,dest);
+      res.redirect('/admin?ok=pdf');
+    }catch(e){
+      if(fs.existsSync(req.file.path))fs.unlinkSync(req.file.path);
+      console.error('PDF save error:',e);
+      return res.status(500).send('No se pudo guardar el PDF.');
+    }
+  });
 });
 app.post('/admin/background',imageUpload.single('image'),requireAdmin,(req,res)=>{
   if(!req.file)return res.status(400).send('Seleccioná una imagen.');

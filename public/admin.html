@@ -18,13 +18,7 @@ function appearance(){return {font:'DM Sans',titleFont:'Playfair Display',textCo
 async function saveAppearance(){const r=await fetch('/admin/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:$('siteTitle').value,description:$('siteDescription').value,footer:$('siteFooter').value,appearance:appearance()})});if(!r.ok)return alert(await r.text());showToast();refresh()}
 function preview(){updateLabels();const a=appearance();const frame=$('preview');frame.contentWindow.postMessage({type:'preview',title:$('siteTitle').value,description:$('siteDescription').value,footer:$('siteFooter').value,appearance:a},'*')}
 function refresh(){frameReload();load()};function frameReload(){const f=$('preview');f.src='/';}function showToast(){$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',2200)}
-window.addEventListener('message',e=>{});$('pdfForm').addEventListener('submit',async e=>{
-e.preventDefault();
-const form=e.currentTarget,fileInput=form.querySelector('input[name="pdf"]'),file=fileInput&&fileInput.files&&fileInput.files[0];
-if(!file)return alert('Seleccioná un PDF.');
-if(!/\.pdf$/i.test(file.name))return alert('El archivo debe ser un PDF.');
-const fd=new FormData();fd.append('pdf',file,file.name);
-try{const r=await fetch('/admin/upload',{method:'POST',body:fd});if(!r.ok)return alert(await r.text());showToast();$('pdfstatus').textContent='✓ Presentación actualizada correctamente.';fileInput.value='';}catch(err){alert('No se pudo conectar con el servidor.');}
-});
+window.addEventListener('message',e=>{});
+
 load();setTimeout(updateLabels,100);
 </script></body></html>
